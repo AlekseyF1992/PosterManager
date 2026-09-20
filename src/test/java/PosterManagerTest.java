@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Assertions;
 
 public class PosterManagerTest {
 
-
-    // Проверяем, что при создании менеджера без параметров лимит по умолчанию равен 5, а список фильмов изначально пуст (0).
+    // Проверяем, что при создании менеджера без параметров лимит по умолчанию равен 5, а список фильмов изначально пустой.
     @Test
     public void shouldCreateManagerWithDefaultLimit() {
         PosterManager manager = new PosterManager();
@@ -22,13 +21,12 @@ public class PosterManagerTest {
         Assertions.assertEquals(0, manager.getFilmsCount());
     }
 
-    // Дополнительная проверка конструктора с другим значением лимита (7),
+    // Дополнительная проверка конструктора с другим значением лимита,
     @Test
     public void shouldCreateManagerWithLimit7() {
         PosterManager manager = new PosterManager(7);
         Assertions.assertEquals(7, manager.getLimit());
     }
-
 
     // Проверяем, что метод save корректно добавляет один фильм
     @Test
@@ -49,13 +47,13 @@ public class PosterManagerTest {
         Assertions.assertEquals(3, manager.getFilmsCount());
     }
 
-
-    // Проверяем, что метод findAll возвращает пустой массив (длиной 0)
+    // Проверяем, что метод findAll возвращает пустой массив
     @Test
     public void shouldFindAllEmptyArray() {
         PosterManager manager = new PosterManager();
         Film[] result = manager.findAll();
-        Assertions.assertEquals(0, result.length);
+        Film[] expected = new Film[0];
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем, что метод findAll возвращает все добавленные фильмы
@@ -71,19 +69,17 @@ public class PosterManagerTest {
         manager.save(film3);
 
         Film[] result = manager.findAll();
-        Assertions.assertEquals(3, result.length);
-        Assertions.assertEquals(film1, result[0]);
-        Assertions.assertEquals(film2, result[1]);
-        Assertions.assertEquals(film3, result[2]);
+        Film[] expected = new Film[]{film1, film2, film3};
+        Assertions.assertArrayEquals(expected, result);
     }
-
 
     // Проверяем возврат пустого массива
     @Test
     public void shouldFindLastWhenEmpty() {
         PosterManager manager = new PosterManager();
         Film[] result = manager.findLast();
-        Assertions.assertEquals(0, result.length);
+        Film[] expected = new Film[0];
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем ветку 'if' (когда фильмов меньше лимита).
@@ -91,128 +87,148 @@ public class PosterManagerTest {
     @Test
     public void shouldFindLastWhenLessThanLimit() {
         PosterManager manager = new PosterManager(); // лимит = 5
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
-        manager.save(new Film("Отель Белград", "комедия"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+        Film film3 = new Film("Отель Белград", "комедия");
+
+        manager.save(film1);
+        manager.save(film2);
+        manager.save(film3);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(3, result.length); // вернулись все 3 фильма
-        Assertions.assertEquals("Отель Белград", result[0].getTitle()); // последний добавленный
-        Assertions.assertEquals("Вперёд", result[1].getTitle());
-        Assertions.assertEquals("Бладшот", result[2].getTitle()); // первый добавленный
+        Film[] expected = new Film[]{film3, film2, film1};
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем граничное условие: когда количество фильмов (5) в точности равно лимиту (5).
     @Test
     public void shouldFindLastExactlyLimit() {
         PosterManager manager = new PosterManager(); // лимит = 5
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
-        manager.save(new Film("Отель Белград", "комедия"));
-        manager.save(new Film("Джентльмены", "боевик"));
-        manager.save(new Film("Человек-невидимка", "ужасы"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+        Film film3 = new Film("Отель Белград", "комедия");
+        Film film4 = new Film("Джентльмены", "боевик");
+        Film film5 = new Film("Человек-невидимка", "ужасы");
+
+        manager.save(film1);
+        manager.save(film2);
+        manager.save(film3);
+        manager.save(film4);
+        manager.save(film5);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(5, result.length); // ровно лимит
-        Assertions.assertEquals("Человек-невидимка", result[0].getTitle());
-        Assertions.assertEquals("Джентльмены", result[1].getTitle());
-        Assertions.assertEquals("Отель Белград", result[2].getTitle());
-        Assertions.assertEquals("Вперёд", result[3].getTitle());
-        Assertions.assertEquals("Бладшот", result[4].getTitle());
+        Film[] expected = new Film[]{film5, film4, film3, film2, film1};
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем ветку 'else' (когда фильмов больше лимита).
     @Test
     public void shouldFindLastMoreThanLimit() {
         PosterManager manager = new PosterManager(); // лимит = 5
-        manager.save(new Film("Бладшот", "боевик"));       // 1
-        manager.save(new Film("Вперёд", "мультфильм"));    // 2
-        manager.save(new Film("Отель Белград", "комедия"));// 3
-        manager.save(new Film("Джентльмены", "боевик"));   // 4
-        manager.save(new Film("Человек-невидимка", "ужасы"));// 5
-        manager.save(new Film("Тролли", "мультфильм"));    // 6
-        manager.save(new Film("Номер один", "комедия"));   // 7
+        Film film1 = new Film("Бладшот", "боевик");       // 1
+        Film film2 = new Film("Вперёд", "мультфильм");    // 2
+        Film film3 = new Film("Отель Белград", "комедия");// 3
+        Film film4 = new Film("Джентльмены", "боевик");   // 4
+        Film film5 = new Film("Человек-невидимка", "ужасы");// 5
+        Film film6 = new Film("Тролли", "мультфильм");    // 6
+        Film film7 = new Film("Номер один", "комедия");   // 7
+
+        manager.save(film1);
+        manager.save(film2);
+        manager.save(film3);
+        manager.save(film4);
+        manager.save(film5);
+        manager.save(film6);
+        manager.save(film7);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(5, result.length); // только последние 5
-        Assertions.assertEquals("Номер один", result[0].getTitle());        // 7-й
-        Assertions.assertEquals("Тролли", result[1].getTitle());            // 6-й
-        Assertions.assertEquals("Человек-невидимка", result[2].getTitle()); // 5-й
-        Assertions.assertEquals("Джентльмены", result[3].getTitle());       // 4-й
-        Assertions.assertEquals("Отель Белград", result[4].getTitle());     // 3-й
-        // "Бладшот" и "Вперёд" не вошли
+        Film[] expected = new Film[]{film7, film6, film5, film4, film3};
+        Assertions.assertArrayEquals(expected, result);
     }
 
-    // Проверяем, что логика обрезки массива работает корректно с кастомным лимитом (3)
+    // Проверяем, что логика обрезки массива работает корректно
     @Test
     public void shouldFindLastWithCustomLimit3() {
         PosterManager manager = new PosterManager(3); // лимит = 3
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
-        manager.save(new Film("Отель Белград", "комедия"));
-        manager.save(new Film("Джентльмены", "боевик"));
-        manager.save(new Film("Человек-невидимка", "ужасы"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+        Film film3 = new Film("Отель Белград", "комедия");
+        Film film4 = new Film("Джентльмены", "боевик");
+        Film film5 = new Film("Человек-невидимка", "ужасы");
+
+        manager.save(film1);
+        manager.save(film2);
+        manager.save(film3);
+        manager.save(film4);
+        manager.save(film5);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(3, result.length);
-        Assertions.assertEquals("Человек-невидимка", result[0].getTitle());
-        Assertions.assertEquals("Джентльмены", result[1].getTitle());
-        Assertions.assertEquals("Отель Белград", result[2].getTitle());
+        Film[] expected = new Film[]{film5, film4, film3};
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем работу с большим кастомным лимитом (7) при добавлении 10 фильмов.
-    // Должны вернуться ровно 7 последних, первые 3 должны быть отброшены.
     @Test
     public void shouldFindLastWithCustomLimit7() {
         PosterManager manager = new PosterManager(7); // лимит = 7
+        Film[] films = new Film[10];
         for (int i = 1; i <= 10; i++) {
-            manager.save(new Film("Фильм" + i, "жанр" + i));
+            films[i - 1] = new Film("Фильм" + i, "жанр" + i);
+            manager.save(films[i - 1]);
         }
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(7, result.length);
-        Assertions.assertEquals("Фильм10", result[0].getTitle());
-        Assertions.assertEquals("Фильм9", result[1].getTitle());
-        Assertions.assertEquals("Фильм8", result[2].getTitle());
-        Assertions.assertEquals("Фильм7", result[3].getTitle());
-        Assertions.assertEquals("Фильм6", result[4].getTitle());
-        Assertions.assertEquals("Фильм5", result[5].getTitle());
-        Assertions.assertEquals("Фильм4", result[6].getTitle());
-        // Фильм1, Фильм2, Фильм3 не вошли
+        Film[] expected = new Film[]{
+                films[9], // Фильм10
+                films[8], // Фильм9
+                films[7], // Фильм8
+                films[6], // Фильм7
+                films[5], // Фильм6
+                films[4], // Фильм5
+                films[3]  // Фильм4
+        };
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем работу метода, когда лимит установлен в 1.
-    // Должен вернуться массив ровно из одного (самого последнего) фильма.
     @Test
     public void shouldFindLastWithLimit1() {
         PosterManager manager = new PosterManager(1); // лимит = 1
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
-        manager.save(new Film("Отель Белград", "комедия"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+        Film film3 = new Film("Отель Белград", "комедия");
+
+        manager.save(film1);
+        manager.save(film2);
+        manager.save(film3);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(1, result.length);
-        Assertions.assertEquals("Отель Белград", result[0].getTitle());
+        Film[] expected = new Film[]{film3};
+        Assertions.assertArrayEquals(expected, result);
     }
 
-    // Проверяем, когда заданный лимит (10) заведомо больше количества добавленных фильмов (5).// Должны вернуться все 5 фильмов без ошибок и обрезки.
+    // Проверяем, когда заданный лимит (10) заведомо больше количества добавленных фильмов (5).
     @Test
     public void shouldFindLastWithLimit10() {
         PosterManager manager = new PosterManager(10); // лимит = 10
+        Film[] films = new Film[5];
         for (int i = 1; i <= 5; i++) {
-            manager.save(new Film("Фильм" + i, "жанр" + i));
+            films[i - 1] = new Film("Фильм" + i, "жанр" + i);
+            manager.save(films[i - 1]);
         }
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(5, result.length); // меньше чем лимит
-        Assertions.assertEquals("Фильм5", result[0].getTitle());
-        Assertions.assertEquals("Фильм4", result[1].getTitle());
-        Assertions.assertEquals("Фильм3", result[2].getTitle());
-        Assertions.assertEquals("Фильм2", result[3].getTitle());
-        Assertions.assertEquals("Фильм1", result[4].getTitle());
+        Film[] expected = new Film[]{
+                films[4], // Фильм5
+                films[3], // Фильм4
+                films[2], // Фильм3
+                films[1], // Фильм2
+                films[0]  // Фильм1
+        };
+        Assertions.assertArrayEquals(expected, result);
     }
 
-    // Проверяем возврат пустонр массива
+    // Проверяем возврат пустого массива
     @Test
     public void shouldFindLastWithZeroLimit() {
         PosterManager manager = new PosterManager(0); // лимит = 0
@@ -220,47 +236,56 @@ public class PosterManagerTest {
         manager.save(new Film("Вперёд", "мультфильм"));
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(0, result.length); // ничего не вернётся
+        Film[] expected = new Film[0];
+        Assertions.assertArrayEquals(expected, result);
     }
 
     // Проверяем устойчивость к очень большим значениям лимита (100),
     @Test
     public void shouldFindLastWithLargeLimit() {
         PosterManager manager = new PosterManager(100); // лимит = 100
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+
+        manager.save(film1);
+        manager.save(film2);
 
         Film[] result = manager.findLast();
-        Assertions.assertEquals(2, result.length); // вернулись все фильмы
+        Film[] expected = new Film[]{film2, film1};
+        Assertions.assertArrayEquals(expected, result);
     }
-
 
     // Цикличная проверка(добавление, проверка, снова добавление, снова проверка).
     @Test
     public void shouldWorkCorrectlyWithMultipleOperations() {
         PosterManager manager = new PosterManager(3);
 
-        manager.save(new Film("Бладшот", "боевик"));
-        manager.save(new Film("Вперёд", "мультфильм"));
+        Film film1 = new Film("Бладшот", "боевик");
+        Film film2 = new Film("Вперёд", "мультфильм");
+        Film film3 = new Film("Отель Белград", "комедия");
+        Film film4 = new Film("Джентльмены", "боевик");
+
+        manager.save(film1);
+        manager.save(film2);
 
         Film[] all1 = manager.findAll();
-        Assertions.assertEquals(2, all1.length);
+        Film[] expectedAll1 = new Film[]{film1, film2};
+        Assertions.assertArrayEquals(expectedAll1, all1);
 
         Film[] last1 = manager.findLast();
-        Assertions.assertEquals(2, last1.length);
-        Assertions.assertEquals("Вперёд", last1[0].getTitle());
+        Film[] expectedLast1 = new Film[]{film2, film1};
+        Assertions.assertArrayEquals(expectedLast1, last1);
 
-        manager.save(new Film("Отель Белград", "комедия"));
-        manager.save(new Film("Джентльмены", "боевик"));
+        manager.save(film3);
+        manager.save(film4);
 
         Film[] all2 = manager.findAll();
-        Assertions.assertEquals(4, all2.length);
+        Film[] expectedAll2 = new Film[]{film1, film2, film3, film4};
+        Assertions.assertArrayEquals(expectedAll2, all2);
 
         Film[] last2 = manager.findLast();
-        Assertions.assertEquals(3, last2.length); // лимит = 3
-        Assertions.assertEquals("Джентльмены", last2[0].getTitle());
-        Assertions.assertEquals("Отель Белград", last2[1].getTitle());
-        Assertions.assertEquals("Вперёд", last2[2].getTitle());
+        Film[] expectedLast2 = new Film[]{film4, film3, film2};
+        Assertions.assertArrayEquals(expectedLast2, last2);
     }
 
     // Проверяем, что объект равен сам себе (ветка: if (this == obj) return true)
@@ -344,7 +369,7 @@ public class PosterManagerTest {
         Assertions.assertEquals("фантастика", film.getGenre());
     }
 
-    // Проверяем, что фильм не равен самому себе
+    // Проверяем, что hashCode не null
     @Test
     public void testFilmHashCodeNotNull() {
         Film film = new Film("Начало", "фантастика");
